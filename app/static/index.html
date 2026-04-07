@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nevis Search UI</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #0f766e;
+      --primary-hover: #115e59;
+      --danger: #b91c1c;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+    .hero {
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font: inherit;
+      margin-bottom: 12px;
+      background: white;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    button {
+      border: 0;
+      background: var(--primary);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: var(--primary-hover); }
+    .secondary {
+      background: #111827;
+    }
+    .secondary:hover {
+      background: #000000;
+    }
+    .inline {
+      display: flex;
+      gap: 10px;
+    }
+    .inline input { margin-bottom: 0; }
+    .hint, .status {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    .status.error { color: var(--danger); }
+    .results {
+      margin-top: 24px;
+      display: grid;
+      gap: 12px;
+    }
+    .result {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ccfbf1;
+      color: #115e59;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .saved {
+      font-size: 14px;
+      color: var(--muted);
+      background: white;
+      border: 1px dashed var(--border);
+      border-radius: 999px;
+      padding: 10px 14px;
+    }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="hero">
+        <h1>Nevis Search UI</h1>
+        <p>Create clients, attach documents, and search everything from one page.</p>
+      </div>
+      <div class="saved">API base: <code>http://127.0.0.1:8000</code></div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Create client</h2>
+        <form id="client-form">
+          <label for="first_name">First name</label>
+          <input id="first_name" name="first_name" required />
+
+          <label for="last_name">Last name</label>
+          <input id="last_name" name="last_name" required />
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required />
+
+          <label for="description">Description</label>
+          <textarea id="description" name="description"></textarea>
+
+          <button type="submit">Create client</button>
+        </form>
+        <div class="status" id="client-status"></div>
+      </section>
+
+      <section class="card">
+        <h2>Add document</h2>
+        <form id="document-form">
+          <label for="client_id">Client ID</label>
+          <input id="client_id" name="client_id" placeholder="Paste a client ID here" required />
+
+          <label for="title">Title</label>
+          <input id="title" name="title" required />
+
+          <label for="content">Content</label>
+          <textarea id="content" name="content" required></textarea>
+
+          <button type="submit">Upload document</button>
+        </form>
+        <div class="hint">Tip: when you create a client, its ID will be shown here and auto-filled.</div>
+        <div class="status" id="document-status"></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top: 20px;">
+      <h2>Search</h2>
+      <form id="search-form" class="inline">
+        <input id="search-q" name="q" placeholder="Try NevisWealth or address proof" required />
+        <button class="secondary" type="submit">Search</button>
+      </form>
+      <div class="results" id="results"></div>
+    </section>
+  </div>
+
+  <script>
+    const apiBase = window.location.origin;
+
+    const clientForm = document.getElementById('client-form');
+    const documentForm = document.getElementById('document-form');
+    const searchForm = document.getElementById('search-form');
+
+    const clientStatus = document.getElementById('client-status');
+    const documentStatus = document.getElementById('document-status');
+    const results = document.getElementById('results');
+    const clientIdInput = document.getElementById('client_id');
+
+    function setStatus(el, message, isError = false) {
+      el.textContent = typeof message === 'string' ? message : JSON.stringify(message, null, 2);
+      el.className = isError ? 'status error' : 'status';
+    }
+
+    function renderResults(items) {
+      if (!items.length) {
+        results.innerHTML = '<div class="result">No results found.</div>';
+        return;
+      }
+      results.innerHTML = items.map(item => {
+        if (item.type === 'client') {
+          return `
+            <div class="result">
+              <div class="badge">client</div>
+              <div><strong>${item.name ?? ''}</strong></div>
+              <div>${item.email ?? ''}</div>
+              <div class="hint">score: ${item.score}</div>
+            </div>
+          `;
+        }
+        return `
+          <div class="result">
+            <div class="badge">document</div>
+            <div><strong>${item.title ?? ''}</strong></div>
+            <div>${item.snippet ?? ''}</div>
+            <div class="hint">score: ${item.score}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    clientForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        first_name: clientForm.first_name.value,
+        last_name: clientForm.last_name.value,
+        email: clientForm.email.value,
+        description: clientForm.description.value,
+        social_links: []
+      };
+      try {
+        const res = await fetch(`${apiBase}/clients`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Failed to create client');
+        clientIdInput.value = data.id;
+        setStatus(clientStatus, `Created client: ${data.first_name} ${data.last_name}
+ID: ${data.id}`);
+      } catch (err) {
+        setStatus(clientStatus, err.message, true);
+      }
+    });
+
+    documentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const clientId = documentForm.client_id.value;
+      const payload = {
+        title: documentForm.title.value,
+        content: documentForm.content.value
+      };
+      try {
+        const res = await fetch(`${apiBase}/clients/${clientId}/documents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Failed to upload document');
+        setStatus(documentStatus, `Created document: ${data.title}
+Document ID: ${data.id}`);
+      } catch (err) {
+        setStatus(documentStatus, err.message, true);
+      }
+    });
+
+    searchForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      results.innerHTML = '<div class="result">Searching...</div>';
+      const q = document.getElementById('search-q').value;
+      try {
+        const res = await fetch(`${apiBase}/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Search failed');
+        renderResults(data);
+      } catch (err) {
+        results.innerHTML = `<div class="result" style="color:#b91c1c;">${err.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
