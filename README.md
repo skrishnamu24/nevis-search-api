@@ -130,6 +130,13 @@ Example response:
 pytest
 ```
 
+## UI screenshots
+
+<img width="1322" height="814" alt="Nevis Search Ul" src="https://github.com/user-attachments/assets/01d13520-0e96-4f9f-8448-44a50e224982" />
+
+<img width="1315" height="811" alt="Pasted Graphic 1" src="https://github.com/user-attachments/assets/e438884c-4b41-4ae0-b4bb-e7ba12d2f9d2" />
+
+
 ## Notes for zsh and Pydantic
 
 - For simplicity and to match the provided OpenAPI schema, documents are submitted as JSON text content rather than binary file uploads
